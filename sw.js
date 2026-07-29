@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '0.3.1';
+const APP_VERSION = '0.3.2';
 const CACHE_PREFIX = 'domap-shell-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const ASSET_PATHS = [
