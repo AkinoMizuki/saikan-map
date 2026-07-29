@@ -4,15 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#17324d">
-  <meta name="description" content="全国の地域パック、OpenStreetMap、ALOS-2レイヤーを扱うオフライン優先の3D災害状況マップ。">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
-  <title>災観 SAIKAN｜オフライン3D災害状況マップ</title>
+  <meta name="description" content="日本の衛星・防災情報、現地障害報告、オフライン道路網を統合し、避難・救助ルートを判断する災害救助支援PWA。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <title>災観 SAIKAN｜災害救助・避難判断支援</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/icon-192.png">
   <link rel="stylesheet" href="./styles.css">
-  <link rel="stylesheet" href="./enhancements.css">
-  <script defer src="./app-loader.js?v=0.2.1"></script>
+  <link rel="stylesheet" href="./saikan-v3.css">
+  <script defer src="./app-v3.js?v=0.3.0"></script>
 </head>
 <body>
   <noscript><div class="fatal-message">このアプリにはJavaScriptが必要です。</div></noscript>
@@ -22,115 +22,168 @@
       <img src="./assets/icon.svg" alt="" width="36" height="36">
       <div>
         <h1>災観 SAIKAN</h1>
-        <p>全国地域パック・OSM・ALOS-2を重ね、通信断時にも保存済み情報を利用</p>
+        <p>日本の衛星・防災情報と現地障害を統合し、安全な避難・救助ルートを判断</p>
       </div>
     </div>
     <div class="status-row" aria-live="polite">
-      <span id="networkBadge" class="badge">通信状態確認中</span>
-      <span id="packBadge" class="badge badge-muted">地域パック未選択</span>
-      <span id="versionBadge" class="badge badge-muted">ver 0.2.1</span>
+      <span id="networkBadge" class="badge">通信確認中</span>
+      <span id="dataBadge" class="badge badge-muted">地域未選択</span>
+      <span id="versionBadge" class="badge badge-muted">ver 0.3.0</span>
       <button id="sidebarToggle" class="icon-button" type="button" aria-controls="sidebar" aria-expanded="true" title="操作パネルを開閉">☰</button>
     </div>
   </header>
 
   <div id="staleBanner" class="stale-banner" hidden>
     <strong>オフライン動作中</strong>
-    <span id="staleText">表示中の情報は最後に保存された時点のものです。</span>
+    <span id="staleText">保存済み情報だけを使用しています。</span>
   </div>
 
-  <div class="workspace">
+  <div class="modebar" aria-label="利用モード">
+    <button type="button" class="mode-button active" data-mode="resident">避難する</button>
+    <button type="button" class="mode-button" data-mode="rescue">救助・支援する</button>
+    <button type="button" class="mode-button" data-mode="hq">対策本部</button>
+  </div>
+
+  <div class="workspace v3-workspace">
     <aside id="sidebar" class="sidebar" aria-label="操作パネル">
-      <section class="panel-section">
-        <h2>地域データ</h2>
-        <label for="catalogSelect">ダウンロード可能な地域パック</label>
-        <select id="catalogSelect"><option value="">アプリを初期化中…</option></select>
-        <div class="button-grid two-columns">
-          <button id="installSampleButton" type="button">選択地域をダウンロード</button>
-          <button id="importPackButton" type="button">端末から読込</button>
+      <section class="panel-section priority-panel">
+        <h2>現在の判断</h2>
+        <div id="decisionSummary" class="decision-summary" aria-live="polite">
+          地域パックを導入し、現在地または出発地点を指定してください。
         </div>
-        <p class="help">嘉島町に限定せず、カタログへ追加された全国の地域パックを選択できます。</p>
-        <input id="packFileInput" type="file" accept=".dmap,.json,application/gzip,application/json" hidden>
-
-        <label for="packSelect">端末に保存済みの地域パック</label>
-        <select id="packSelect"><option value="">未選択</option></select>
-
-        <label for="packUrlInput">地域パックURL</label>
-        <div class="inline-form">
-          <input id="packUrlInput" type="url" inputmode="url" placeholder="./data/packs/example.dmap">
-          <button id="installUrlButton" type="button">取得</button>
-        </div>
-        <p class="help">同一GitHub Pages内の相対URLを推奨します。外部URLはCORS許可が必要です。</p>
-        <div id="packDetails" class="info-box" aria-live="polite">アプリを初期化しています。</div>
-        <button id="deleteActivePackButton" class="danger-outline" type="button" disabled>選択中パックを削除</button>
+        <div id="freshnessSummary" class="freshness-summary"></div>
       </section>
 
       <section class="panel-section">
-        <h2>ALOS-2衛星レイヤー</h2>
-        <label for="alos2ProductSelect">公開・変換済みプロダクト</label>
-        <select id="alos2ProductSelect"><option value="">アプリを初期化中…</option></select>
+        <h2>地域・道路データ</h2>
+        <label for="catalogSelect">ダウンロード可能な地域パック</label>
+        <select id="catalogSelect"><option value="">地域カタログを読込中…</option></select>
         <div class="button-grid two-columns">
-          <button id="installAlos2Button" type="button">公開状況を確認</button>
-          <button id="clearAlos2Button" class="danger-outline" type="button">保存済みを削除</button>
+          <button id="installRegionButton" type="button">選択地域を保存</button>
+          <button id="importPackButton" type="button">端末から読込</button>
         </div>
-        <label for="alos2Opacity">衛星レイヤー透明度</label>
-        <input id="alos2Opacity" type="range" min="0" max="100" value="65">
-        <div id="alos2Info" class="info-box">アプリを初期化しています。</div>
-        <p class="help">取得可能な表示用レイヤーがない場合は、ボタン名が「ALOS-2公開状況を確認」に変わり、JAXA公式ページを開きます。</p>
+        <input id="packFileInput" type="file" accept=".dmap,.json,application/gzip,application/json" hidden>
+
+        <label for="packSelect">端末に保存済みの地域</label>
+        <select id="packSelect"><option value="">未選択</option></select>
+
+        <div class="button-grid two-columns">
+          <button id="downloadRoadsButton" type="button">OSM道路網を保存</button>
+          <button id="deleteRoadsButton" class="danger-outline" type="button">道路網を削除</button>
+        </div>
+        <p class="help">OSM道路網は対象地域だけを利用者操作で取得し、端末へ保存します。通信断後の経路計算に使用します。</p>
+        <div id="packDetails" class="info-box">地域を選択してください。</div>
+      </section>
+
+      <section class="panel-section">
+        <h2>日本の衛星・防災更新</h2>
+        <div class="source-grid">
+          <div class="source-item"><strong>ALOS-2</strong><span>地表変化・浸水・斜面変化</span><em id="alosStatus">未取得</em></div>
+          <div class="source-item"><strong>QZSS</strong><span>測位・災危通報</span><em id="qzssStatus">受信データなし</em></div>
+          <div class="source-item"><strong>ひまわり/JMA</strong><span>雨雲・警報・気象危険度</span><em id="jmaStatus">更新データなし</em></div>
+        </div>
+        <label for="updateCatalogSelect">配布中の観測更新</label>
+        <select id="updateCatalogSelect"><option value="">更新カタログを読込中…</option></select>
+        <div class="button-grid two-columns">
+          <button id="downloadUpdateButton" type="button">観測更新を取得</button>
+          <button id="importUpdateButton" type="button">更新ファイル読込</button>
+        </div>
+        <input id="updateFileInput" type="file" accept=".json,.geojson,.saikan-update,application/json,application/geo+json" hidden>
+        <div class="button-grid two-columns">
+          <button id="openJaxaButton" type="button">JAXA公開状況</button>
+          <button id="deleteUpdatesButton" class="danger-outline" type="button">観測更新を削除</button>
+        </div>
+        <div id="updateInfo" class="info-box">公開済み・変換済みの観測更新だけを地図へ反映します。</div>
+      </section>
+
+      <section class="panel-section">
+        <h2>避難・進入ルート</h2>
+        <label for="disasterType">想定する災害</label>
+        <select id="disasterType">
+          <option value="earthquake">地震・建物倒壊</option>
+          <option value="flood">洪水・内水氾濫</option>
+          <option value="landslide">土砂災害</option>
+          <option value="tsunami">津波</option>
+          <option value="fire">火災</option>
+          <option value="multi">複合災害</option>
+        </select>
+        <label for="travelMode">移動手段</label>
+        <select id="travelMode">
+          <option value="foot">徒歩</option>
+          <option value="wheelchair">車椅子・歩行困難者</option>
+          <option value="vehicle">救助車両</option>
+        </select>
+        <div class="button-grid two-columns">
+          <button id="locateButton" type="button">現在地を出発点</button>
+          <button id="setStartButton" type="button">地図で出発点</button>
+        </div>
+        <div class="button-grid two-columns">
+          <button id="calculateEvacuationButton" type="button">安全な避難候補</button>
+          <button id="setDestinationButton" type="button">救助目的地を指定</button>
+        </div>
+        <button id="calculateRescueRouteButton" type="button">指定地点への安全な進入ルート</button>
+        <div id="routeResults" class="route-results" aria-live="polite">道路網と出発点を準備してください。</div>
+      </section>
+
+      <section class="panel-section">
+        <h2>地図にない障害・危険を記録</h2>
+        <label for="obstacleType">内容</label>
+        <select id="obstacleType">
+          <option value="road_block">道路閉塞・倒木・瓦礫</option>
+          <option value="collapse">建物崩落</option>
+          <option value="flood">浸水・冠水</option>
+          <option value="landslide">土砂崩れ</option>
+          <option value="fire">火災・煙</option>
+          <option value="bridge">橋梁異常</option>
+          <option value="rescue_needed">要救助・未確認区域</option>
+          <option value="safe">安全確認済み</option>
+          <option value="no_entry">立入禁止</option>
+        </select>
+        <label for="obstacleSeverity">重要度</label>
+        <select id="obstacleSeverity">
+          <option value="5">緊急・通行不能</option>
+          <option value="4">重大</option>
+          <option value="3" selected>要注意</option>
+          <option value="2">軽微</option>
+          <option value="1">参考</option>
+        </select>
+        <label for="obstacleNote">現地メモ</label>
+        <textarea id="obstacleNote" rows="2" maxlength="1000" placeholder="道路名、被害状況、通行可能幅、確認時刻など"></textarea>
+        <div class="button-grid three-columns">
+          <button type="button" class="draw-button" data-draw="Point">地点</button>
+          <button type="button" class="draw-button" data-draw="LineString">線</button>
+          <button type="button" class="draw-button" data-draw="Polygon">エリア</button>
+        </div>
+        <div class="button-grid two-columns">
+          <button id="finishDrawingButton" type="button" disabled>記録を確定</button>
+          <button id="cancelDrawingButton" class="danger-outline" type="button" disabled>取消</button>
+        </div>
+        <div id="drawingStatus" class="info-box">地点・線・エリアを選び、地図上をクリックしてください。</div>
+        <div class="button-grid two-columns">
+          <button id="exportSituationButton" type="button">状況データを書出し</button>
+          <button id="importSituationButton" type="button">状況データ読込</button>
+        </div>
+        <input id="situationFileInput" type="file" accept=".geojson,.json,application/geo+json,application/json" hidden>
+        <div id="observationList" class="report-list"></div>
       </section>
 
       <section class="panel-section">
         <h2>表示レイヤー</h2>
         <div class="check-grid">
-          <label><input id="osmBasemap" type="checkbox" checked> OpenStreetMap背景（オンライン）</label>
-          <label><input type="checkbox" data-layer="basemap" checked> 地域パック内の道路・水域</label>
-          <label><input type="checkbox" data-layer="buildings" checked> 災害前建物</label>
-          <label><input type="checkbox" data-layer="hazards" checked> 変化・危険領域</label>
-          <label><input type="checkbox" data-layer="routes" checked> 進入・通行情報</label>
-          <label><input type="checkbox" data-layer="shelters" checked> 避難所・拠点</label>
-          <label><input type="checkbox" data-layer="weather" checked> 保存済み気象情報</label>
-          <label><input type="checkbox" data-layer="reports" checked> 現地調査記録</label>
+          <label><input id="osmBasemap" type="checkbox" checked> OSM背景（オンライン）</label>
+          <label><input type="checkbox" data-layer="roads" checked> 保存済み道路網</label>
+          <label><input type="checkbox" data-layer="hazards" checked> 公的危険区域</label>
+          <label><input type="checkbox" data-layer="satellite" checked> 衛星・気象更新</label>
+          <label><input type="checkbox" data-layer="buildings" checked> 建物</label>
+          <label><input type="checkbox" data-layer="shelters" checked> 避難候補</label>
+          <label><input type="checkbox" data-layer="observations" checked> 現地障害・報告</label>
+          <label><input type="checkbox" data-layer="route" checked> 推奨ルート</label>
         </div>
-        <p class="help online-only-note">OSM標準タイルはオンライン背景専用です。オフライン地図は地域パックへ格納します。</p>
-        <label for="compareSlider">災害前後の比較</label>
-        <input id="compareSlider" type="range" min="0" max="100" value="65">
-        <div class="range-labels"><span>災害前</span><strong id="compareValue">65%</strong><span>災害後</span></div>
-      </section>
-
-      <section class="panel-section">
-        <h2>建物・地点検索</h2>
-        <div class="inline-form">
-          <input id="searchInput" type="search" placeholder="施設名・住所・ID">
-          <button id="searchButton" type="button">検索</button>
-        </div>
-        <div id="searchResults" class="search-results" aria-live="polite"></div>
-      </section>
-
-      <section class="panel-section">
-        <h2>現地調査記録</h2>
-        <label for="reportCategory">種別</label>
-        <select id="reportCategory">
-          <option value="unconfirmed">未確認</option><option value="damage">建物被害</option>
-          <option value="blocked">道路閉塞</option><option value="rescue">要救助・救助活動</option>
-          <option value="safe">安全確認</option><option value="medical">医療・救護</option><option value="other">その他</option>
-        </select>
-        <label for="reportStatus">状態</label>
-        <select id="reportStatus"><option value="open">対応中</option><option value="confirmed">確認済み</option><option value="resolved">完了</option></select>
-        <label for="reportNote">メモ</label>
-        <textarea id="reportNote" rows="3" maxlength="1000" placeholder="観測内容、通行可否、要確認事項など"></textarea>
-        <label class="check-line"><input id="useCurrentLocation" type="checkbox"> 取得済みの現在地を使用</label>
-        <p class="help">未チェック時は地図中央に記録します。記録は端末内に保存されます。</p>
-        <button id="addReportButton" type="button">調査記録を追加</button>
-        <div class="button-grid two-columns">
-          <button id="exportReportsButton" type="button">GeoJSON書出し</button>
-          <button id="importReportsButton" type="button">GeoJSON読込</button>
-        </div>
-        <input id="reportFileInput" type="file" accept=".geojson,.json,application/geo+json,application/json" hidden>
-        <div id="reportList" class="report-list"></div>
       </section>
 
       <section class="panel-section">
         <h2>オフライン準備</h2>
-        <div id="storageSummary" class="storage-summary">ストレージ使用量を確認中…</div>
+        <div id="storageSummary" class="storage-summary">保存状態を確認中…</div>
         <div class="button-grid two-columns">
           <button id="requestPersistButton" type="button">永続保存を要求</button>
           <button id="prepareOfflineButton" type="button">完全オフライン検証</button>
@@ -140,39 +193,37 @@
 
       <section class="panel-section danger-zone">
         <h2>キャッシュ・データ削除</h2>
-        <p class="help">誤操作防止のため確認画面を表示します。</p>
         <button id="clearCacheButton" class="danger-outline" type="button">アプリキャッシュを消去</button>
-        <button id="deleteReportsButton" class="danger-outline" type="button">全調査記録を削除</button>
-        <button id="deleteAllPacksButton" class="danger-outline" type="button">全地域パックを削除</button>
+        <button id="deleteObservationsButton" class="danger-outline" type="button">現地障害・報告を全削除</button>
+        <button id="deleteAllPacksButton" class="danger-outline" type="button">地域・道路データを全削除</button>
         <button id="fullResetButton" class="danger-solid" type="button">アプリを完全初期化</button>
       </section>
     </aside>
 
-    <main class="map-area" aria-label="災害地図">
-      <canvas id="mapCanvas" tabindex="0" aria-label="左ドラッグで移動、右ドラッグまたはShiftとドラッグで方位・傾斜回転、ホイールで拡大縮小できます。"></canvas>
+    <main class="map-area" aria-label="災害救助支援地図">
+      <div id="mapDecisionBanner" class="map-decision-banner">地域・現在地・道路網を準備してください。</div>
+      <canvas id="mapCanvas" tabindex="0" aria-label="左ドラッグで移動、右ドラッグまたはShiftとドラッグで回転。記録モードではクリックして地点・線・エリアを入力します。"></canvas>
       <div id="emptyMapMessage" class="empty-map-message">
-        <strong>OpenStreetMapを表示できます</strong>
-        <span>災害・避難所・建物データは左側から地域パックをダウンロードしてください。</span>
+        <strong>全国地図を表示できます</strong>
+        <span>地域パックと道路網を保存すると、通信断時にも避難・救助ルートを計算できます。</span>
       </div>
       <div class="map-controls" aria-label="地図操作">
         <button id="zoomInButton" type="button" title="拡大">＋</button>
         <button id="zoomOutButton" type="button" title="縮小">－</button>
         <button id="toggle3dButton" type="button" title="2D・3D切替">3D</button>
-        <button id="bearingResetButton" type="button" title="方位を北に戻す">N</button>
-        <span id="bearingBadge" class="bearing-badge">方位 0°</span>
-        <button id="locateButton" type="button" title="現在地を取得">◎</button>
-        <button id="homeViewButton" type="button" title="地域全体を表示">⌂</button>
+        <button id="bearingResetButton" type="button" title="北を上に戻す">N</button>
+        <button id="homeViewButton" type="button" title="地域全体">⌂</button>
       </div>
-      <div class="map-gesture-help">左ドラッグ：移動／右ドラッグまたはShift＋ドラッグ：方位・傾斜回転</div>
-      <div class="map-scale" id="mapScale">縮尺計算中</div>
+      <div id="bearingBadge" class="bearing-badge">方位 0°</div>
+      <div id="mapScale" class="map-scale">縮尺計算中</div>
       <div id="mapPopup" class="map-popup" hidden></div>
     </main>
   </div>
 
-  <footer id="attributionFooter" class="attribution-footer">
+  <footer class="attribution-footer">
     <strong>クレジット：</strong>
-    <span id="attributionText">本アプリ：災観 SAIKAN | 背景地図：© OpenStreetMap contributors</span>
-    <span class="footer-warning">解析結果は被害を確定するものではありません。現地確認・公的情報と併用してください。</span>
+    <span id="attributionText">災観 SAIKAN | © OpenStreetMap contributors</span>
+    <span class="footer-warning">推奨は自動判定です。現地状況、公的指示、救助隊判断を優先してください。</span>
   </footer>
 
   <dialog id="progressDialog" class="progress-dialog">
