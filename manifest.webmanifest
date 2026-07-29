@@ -1,7 +1,7 @@
 {
-  "name": "災害オフライン3Dマップ",
-  "short_name": "災害3Dマップ",
-  "description": "地域パックを事前保存し、通信断時にも地図・建物・調査記録を利用できる無料PWA。",
+  "name": "災観 SAIKAN 災害救助・避難判断支援",
+  "short_name": "災観 SAIKAN",
+  "description": "日本の衛星・防災情報、現地障害報告、オフライン道路網を統合し、安全な避難・救助ルートを判断するPWA。",
   "lang": "ja-JP",
   "start_url": "./",
   "scope": "./",
