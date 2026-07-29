@@ -26,6 +26,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Build SAIKAN application
+        run: |
+          cat app-v3c/part-00.txt \
+              app-v3c/part-01.txt \
+              app-v3c/part-02.txt \
+              app-v3c/part-03.txt \
+              app-v3c/part-04.txt > app-v3.js
+          node --check app-v3.js
+          python3 -m json.tool data/catalog.json > /dev/null
+          python3 -m json.tool data/updates/catalog.json > /dev/null
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
