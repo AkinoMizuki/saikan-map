@@ -1,4 +1,11 @@
-# 災害オフライン3Dマップ
+# 災観 SAIKAN
+
+**オフライン3D災害状況マップ / Offline 3D Disaster Situation Map**
+
+- **公開Web（GitHub Pages）:** https://akinomizuki.github.io/saikan-map/
+- **GitHubリポジトリ:** https://github.com/AkinoMizuki/saikan-map
+
+> 災害前後を、通信がなくても見比べる。
 
 GitHub Pagesへそのまま配置できる、無料・静的・オフライン優先の災害地図PWAです。
 
@@ -31,20 +38,16 @@ GitHub Pagesへそのまま配置できる、無料・静的・オフライン�
 - GitHub ActionsによるGitHub Pages自動配備
 - 外部APIキー、従量課金、広告、アクセス解析なし
 
-## GitHubへ置く方法
+## 公開先
 
-1. このフォルダーの中身を、公開GitHubリポジトリのルートへ配置します。
-2. `main` ブランチへpushします。
-3. GitHubの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** にします。
-4. `Deploy GitHub Pages` ワークフローが完了すると公開されます。
+- **公開Web:** https://akinomizuki.github.io/saikan-map/
+- **ソースコード:** https://github.com/AkinoMizuki/saikan-map
 
-リポジトリ名が `disaster-offline-map` の場合、通常は次の形式です。
+`main` ブランチへpushすると、同梱のGitHub Actionsワークフローが検証後にGitHub Pagesへ配備します。
 
-```text
-https://<GitHubユーザー名>.github.io/disaster-offline-map/
-```
+初回のみ、GitHubの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に設定してください。公開Webが404の場合は、Actionsの `Deploy GitHub Pages` が正常終了しているか確認します。
 
-相対パス、PWAの `scope`、Service Workerのキャッシュパスは、プロジェクトページ配下でも動くように構成済みです。
+相対パス、PWAの `scope`、Service Workerのキャッシュパスは、`/saikan-map/` 配下で動くように構成済みです。
 
 ## 初回利用手順
 
