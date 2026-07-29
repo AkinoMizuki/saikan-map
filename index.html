@@ -4,32 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#17324d">
-  <meta name="description" content="事前取得した地域データを通信断時にも使用できる、無料・静的ホスティング対応の災害オフライン3Dマップ。">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https:; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="description" content="全国の地域パック、OpenStreetMap、ALOS-2レイヤーを扱うオフライン優先の3D災害状況マップ。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>災観 SAIKAN｜オフライン3D災害状況マップ</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/icon-192.png">
   <link rel="stylesheet" href="./styles.css">
-  <script defer src="./app.js"></script>
+  <link rel="stylesheet" href="./enhancements.css">
+  <script defer src="./app-v2.js"></script>
 </head>
 <body>
-  <noscript>
-    <div class="fatal-message">このアプリにはJavaScriptが必要です。</div>
-  </noscript>
+  <noscript><div class="fatal-message">このアプリにはJavaScriptが必要です。</div></noscript>
 
   <header class="topbar">
     <div class="brand">
       <img src="./assets/icon.svg" alt="" width="36" height="36">
       <div>
         <h1>災観 SAIKAN</h1>
-        <p>地域パックを事前保存し、通信断時にも地図・建物・調査記録を利用</p>
+        <p>全国地域パック・OSM・ALOS-2を重ね、通信断時にも保存済み情報を利用</p>
       </div>
     </div>
     <div class="status-row" aria-live="polite">
       <span id="networkBadge" class="badge">通信状態確認中</span>
       <span id="packBadge" class="badge badge-muted">地域パック未選択</span>
-      <span id="versionBadge" class="badge badge-muted">ver 0.1.0</span>
+      <span id="versionBadge" class="badge badge-muted">ver 0.2.0</span>
       <button id="sidebarToggle" class="icon-button" type="button" aria-controls="sidebar" aria-expanded="true" title="操作パネルを開閉">☰</button>
     </div>
   </header>
@@ -43,33 +42,48 @@
     <aside id="sidebar" class="sidebar" aria-label="操作パネル">
       <section class="panel-section">
         <h2>地域データ</h2>
-        <label for="packSelect">使用する地域パック</label>
-        <select id="packSelect">
-          <option value="">未選択</option>
-        </select>
+        <label for="catalogSelect">ダウンロード可能な地域パック</label>
+        <select id="catalogSelect"><option value="">地域カタログを読み込み中…</option></select>
         <div class="button-grid two-columns">
-          <button id="installSampleButton" type="button">熊本県嘉島町をダウンロード</button>
+          <button id="installSampleButton" type="button">選択地域をダウンロード</button>
           <button id="importPackButton" type="button">端末から読込</button>
         </div>
+        <p class="help">嘉島町に限定せず、カタログへ追加された全国の地域パックを選択できます。</p>
         <input id="packFileInput" type="file" accept=".dmap,.json,application/gzip,application/json" hidden>
+
+        <label for="packSelect">端末に保存済みの地域パック</label>
+        <select id="packSelect"><option value="">未選択</option></select>
 
         <label for="packUrlInput">地域パックURL</label>
         <div class="inline-form">
           <input id="packUrlInput" type="url" inputmode="url" placeholder="./data/packs/example.dmap">
           <button id="installUrlButton" type="button">取得</button>
         </div>
-        <p class="help">同一GitHub Pages内の相対URLを推奨します。外部URLは配信元のCORS許可が必要です。</p>
+        <p class="help">同一GitHub Pages内の相対URLを推奨します。外部URLはCORS許可が必要です。</p>
 
-        <div id="packDetails" class="info-box" aria-live="polite">
-          地域パックを選択してください。
-        </div>
+        <div id="packDetails" class="info-box" aria-live="polite">地域パックを選択してください。</div>
         <button id="deleteActivePackButton" class="danger-outline" type="button" disabled>選択中パックを削除</button>
+      </section>
+
+      <section class="panel-section">
+        <h2>ALOS-2衛星レイヤー</h2>
+        <label for="alos2ProductSelect">公開・変換済みプロダクト</label>
+        <select id="alos2ProductSelect"><option value="">カタログを読み込み中…</option></select>
+        <div class="button-grid two-columns">
+          <button id="installAlos2Button" type="button">ALOS-2データを取得</button>
+          <button id="clearAlos2Button" class="danger-outline" type="button">保存済みを削除</button>
+        </div>
+        <label for="alos2Opacity">衛星レイヤー透明度</label>
+        <input id="alos2Opacity" type="range" min="0" max="100" value="65">
+        <div id="alos2Info" class="info-box">ALOS-2カタログを確認中です。</div>
+        <p class="help">JAXAのGeoTIFF原データは外部PCでWeb表示用に軽量変換してから登録します。未公開地域では公式公開状況を確認します。</p>
       </section>
 
       <section class="panel-section">
         <h2>表示レイヤー</h2>
         <div class="check-grid">
-          <label><input type="checkbox" data-layer="basemap" checked> 基本道路・水域</label>
+          <label><input id="osmBasemap" type="checkbox" checked> OpenStreetMap背景（オンライン）</label>
+          <label><input type="checkbox" data-layer="basemap" checked> 地域パック内の道路・水域</label>
           <label><input type="checkbox" data-layer="buildings" checked> 災害前建物</label>
           <label><input type="checkbox" data-layer="hazards" checked> 変化・危険領域</label>
           <label><input type="checkbox" data-layer="routes" checked> 進入・通行情報</label>
@@ -77,6 +91,7 @@
           <label><input type="checkbox" data-layer="weather" checked> 保存済み気象情報</label>
           <label><input type="checkbox" data-layer="reports" checked> 現地調査記録</label>
         </div>
+        <p class="help online-only-note">OSM標準タイルはオンライン背景専用です。大量事前取得は行わず、オフライン地図は地域パックへ格納します。</p>
 
         <label for="compareSlider">災害前後の比較</label>
         <input id="compareSlider" type="range" min="0" max="100" value="65">
@@ -86,7 +101,7 @@
       <section class="panel-section">
         <h2>建物・地点検索</h2>
         <div class="inline-form">
-          <input id="searchInput" type="search" placeholder="建物ID・名称">
+          <input id="searchInput" type="search" placeholder="施設名・住所・ID">
           <button id="searchButton" type="button">検索</button>
         </div>
         <div id="searchResults" class="search-results" aria-live="polite"></div>
@@ -113,7 +128,7 @@
         <label for="reportNote">メモ</label>
         <textarea id="reportNote" rows="3" maxlength="1000" placeholder="観測内容、通行可否、要確認事項など"></textarea>
         <label class="check-line"><input id="useCurrentLocation" type="checkbox"> 取得済みの現在地を使用</label>
-        <p class="help">未チェック時は地図中央に記録します。記録は端末内にのみ保存されます。</p>
+        <p class="help">未チェック時は地図中央に記録します。記録は端末内に保存されます。</p>
         <button id="addReportButton" type="button">調査記録を追加</button>
         <div class="button-grid two-columns">
           <button id="exportReportsButton" type="button">GeoJSON書出し</button>
@@ -135,7 +150,7 @@
 
       <section class="panel-section danger-zone">
         <h2>キャッシュ・データ削除</h2>
-        <p class="help">誤操作防止のため確認画面が表示されます。調査記録は地域パックとは別に管理されます。</p>
+        <p class="help">誤操作防止のため確認画面を表示します。</p>
         <button id="clearCacheButton" class="danger-outline" type="button">アプリキャッシュを消去</button>
         <button id="deleteReportsButton" class="danger-outline" type="button">全調査記録を削除</button>
         <button id="deleteAllPacksButton" class="danger-outline" type="button">全地域パックを削除</button>
@@ -144,18 +159,21 @@
     </aside>
 
     <main class="map-area" aria-label="災害地図">
-      <canvas id="mapCanvas" tabindex="0" aria-label="地域パックの地図。ドラッグで移動、ホイールで拡大縮小できます。"></canvas>
+      <canvas id="mapCanvas" tabindex="0" aria-label="左ドラッグで移動、右ドラッグまたはShiftとドラッグで方位・傾斜回転、ホイールで拡大縮小できます。"></canvas>
       <div id="emptyMapMessage" class="empty-map-message">
-        <strong>地域パックが未導入です</strong>
-        <span>左側の「熊本県嘉島町をダウンロード」または「端末から読込」を選択してください。</span>
+        <strong>OpenStreetMapを表示できます</strong>
+        <span>災害・避難所・建物データは左側から地域パックをダウンロードしてください。</span>
       </div>
       <div class="map-controls" aria-label="地図操作">
         <button id="zoomInButton" type="button" title="拡大">＋</button>
         <button id="zoomOutButton" type="button" title="縮小">－</button>
         <button id="toggle3dButton" type="button" title="2D・3D切替">3D</button>
+        <button id="bearingResetButton" type="button" title="方位を北に戻す">N</button>
+        <span id="bearingBadge" class="bearing-badge">方位 0°</span>
         <button id="locateButton" type="button" title="現在地を取得">◎</button>
         <button id="homeViewButton" type="button" title="地域全体を表示">⌂</button>
       </div>
+      <div class="map-gesture-help">左ドラッグ：移動／右ドラッグまたはShift＋ドラッグ：方位・傾斜回転</div>
       <div class="map-scale" id="mapScale">縮尺計算中</div>
       <div id="mapPopup" class="map-popup" hidden></div>
     </main>
@@ -163,13 +181,13 @@
 
   <footer id="attributionFooter" class="attribution-footer">
     <strong>クレジット：</strong>
-    <span id="attributionText">本アプリ：災観 SAIKAN。地域データ未選択。</span>
+    <span id="attributionText">本アプリ：災観 SAIKAN | 背景地図：© OpenStreetMap contributors</span>
     <span class="footer-warning">解析結果は被害を確定するものではありません。現地確認・公的情報と併用してください。</span>
   </footer>
 
   <dialog id="progressDialog" class="progress-dialog">
     <h2 id="progressTitle">処理中</h2>
-    <p id="progressMessage">しばらくお待ちください。</p>
+    <p id="progressMessage">処理しています。</p>
     <progress id="progressBar" max="100" value="0"></progress>
   </dialog>
 
