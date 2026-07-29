@@ -33,46 +33,26 @@ jobs:
               app-v3c/part-02.txt \
               app-v3c/part-03.txt \
               app-v3c/part-04.txt > app-v3.js
-          python3 - <<'PY'
-          from pathlib import Path
 
-          path = Path('app-v3.js')
-          source = path.read_text(encoding='utf-8')
-          source = source.replace('best=id;', 'best=Number(id);')
-          source = source.replace(
-              "async function downloadUpdate(){const p=",
-              "async function downloadUpdate(){if(!activePack)throw new Error('先に地域を選択してください。');const p="
-          )
-          source = source.replace(
-              "async function importUpdate(file){const j=",
-              "async function importUpdate(file){if(!activePack)throw new Error('先に地域を選択してください。');const j="
-          )
-          source = source.replace(
-              "async function finishDraw(){if(!map.drawing)return;",
-              "async function finishDraw(){if(!activePack)throw new Error('先に地域を選択してください。');if(!map.drawing)return;"
-          )
-          source = source.replace(
-              "hit=pointInPolygon(mid,g.coordinates[0])||pointInPolygon(a,g.coordinates[0])||pointInPolygon(b,g.coordinates[0]);",
-              "const ring=g.coordinates[0];hit=pointInPolygon(mid,ring)||pointInPolygon(a,ring)||pointInPolygon(b,ring)||ring.some((c,i)=>i>0&&segmentsIntersect(a,b,ring[i-1],c));"
-          )
-          source = source.replace(
-              "hit=g.coordinates.some(x=>pointInPolygon(mid,x[0]));",
-              "hit=g.coordinates.some(x=>{const ring=x[0];return pointInPolygon(mid,ring)||pointInPolygon(a,ring)||pointInPolygon(b,ring)||ring.some((c,i)=>i>0&&segmentsIntersect(a,b,ring[i-1],c));});"
-          )
-          source = source.replace(
-              "function renderRoutes(items){dom.routeResults.replaceChildren();items.forEach((x,i)=>{const d=document.createElement('div');d.className='route-card';const name=x.shelter.properties?.name||'候補',km=(x.cost/1000).toFixed(2);d.innerHTML=`<strong>${i+1}. ${name}</strong><span>危険回避コスト換算 ${km} km / ${Math.max(1,Math.round(x.cost/(dom.travelMode.value==='vehicle'?500:80)))}分目安</span>`;",
-              "function routeDistance(coords){let total=0;for(let i=1;i<coords.length;i++)total+=haversine(coords[i-1],coords[i]);return total;}\n  function renderRoutes(items){dom.routeResults.replaceChildren();items.forEach((x,i)=>{const d=document.createElement('div');d.className='route-card';const name=x.shelter.properties?.name||'候補',distance=routeDistance(x.coords),km=(distance/1000).toFixed(2),speed=dom.travelMode.value==='vehicle'?500:dom.travelMode.value==='wheelchair'?45:80,risk=(x.cost/Math.max(distance,1)).toFixed(1);d.innerHTML=`<strong>${i+1}. ${name}</strong><span>実距離 ${km} km / 約${Math.max(1,Math.round(distance/speed))}分 / 危険係数 ${risk}</span>`;"
-          )
-          source = source.replace(
-              "db.close();indexedDB.deleteDatabase(DB_NAME);const n=await caches.keys();",
-              "db.close();await new Promise((resolve,reject)=>{const r=indexedDB.deleteDatabase(DB_NAME);r.onsuccess=resolve;r.onerror=()=>reject(r.error);r.onblocked=()=>reject(new Error('別タブを閉じてください。'));});const n=await caches.keys();"
-          )
-          path.write_text(source, encoding='utf-8')
-          PY
+          python3 tools/patch_v031.py
+          python3 tools/patch_index_v031.py
+
+          mkdir -p vendor
+          curl --fail --location --retry 3 \
+            https://raw.githubusercontent.com/davidshimjs/qrcodejs/04f46c6a0708418cb7b96fc563eacae0fbf77674/qrcode.min.js \
+            --output vendor/qrcode.min.js
+          curl --fail --location --retry 3 \
+            https://raw.githubusercontent.com/davidshimjs/qrcodejs/04f46c6a0708418cb7b96fc563eacae0fbf77674/LICENSE \
+            --output vendor/qrcodejs-LICENSE.txt
+
+          test -s vendor/qrcode.min.js
+          test -s vendor/qrcodejs-LICENSE.txt
           node --check app-v3.js
-          grep -q "best=Number(id);" app-v3.js
-          grep -q "function routeDistance" app-v3.js
-          grep -q "別タブを閉じてください" app-v3.js
+          node --check share-v31.js
+          grep -q "const APP_VERSION = '0.3.1'" app-v3.js
+          grep -q "window.SAIKAN_SHARE_API" app-v3.js
+          grep -q "QR分割オフライン共有" index.html
+          grep -q "vendor/qrcode.min.js" index.html
           python3 -m json.tool data/catalog.json > /dev/null
           python3 -m json.tool data/updates/catalog.json > /dev/null
 
