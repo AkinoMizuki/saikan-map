@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "updatedAt": "2026-07-29T14:20:00+09:00",
+  "event": {
+    "id": "2026-00024-JPN",
+    "name": "熊本地震",
+    "occurredAt": "2026-07-28",
+    "sourceUrl": "https://daichi-bousai.dpif.jaxa.jp/externalif/disaster/2026-00024-JPN/"
+  },
+  "products": [
+    {
+      "id": "jaxa-alos2-20260728-p124-f680-rgb",
+      "name": "ALOS-2 熊本地震 変化域抽出速報図 / Frame 680",
+      "source": "JAXA 防災インタフェース",
+      "satellite": "ALOS-2",
+      "sensor": "SAR",
+      "analysisType": "変化域抽出",
+      "method": "RGB合成処理",
+      "observedAt": "2026-07-28T14:30:28Z",
+      "beforeAt": "2025-08-12T14:30:27Z",
+      "center": [130.5835, 32.413],
+      "path": 124,
+      "frame": 680,
+      "polarization": "HH",
+      "offNadir": 42.3,
+      "direction": "left",
+      "previewUrl": "https://daichi-bousai.dpif.jaxa.jp/static/browse_image/11ee77cb-9847-40f0-9bb9-4aae8a88df68/6e2d33da-3370-4341-ab42-f4da16d1cfc1.png",
+      "sourceUrl": "https://daichi-bousai.dpif.jaxa.jp/externalif/disaster/2026-00024-JPN/",
+      "usage": "visual_reference",
+      "warning": "速報図は目視確認用です。正確な地理参照範囲を持たないため、道路閉塞や避難経路を自動確定する入力には使用しません。"
+    },
+    {
+      "id": "jaxa-alos2-20260728-p124-f690-rgb",
+      "name": "ALOS-2 熊本地震 変化域抽出速報図 / Frame 690",
+      "source": "JAXA 防災インタフェース",
+      "satellite": "ALOS-2",
+      "sensor": "SAR",
+      "analysisType": "変化域抽出",
+      "method": "RGB合成処理",
+      "observedAt": "2026-07-28T14:30:36Z",
+      "beforeAt": "2025-08-12T14:30:35Z",
+      "center": [130.415, 32.901],
+      "path": 124,
+      "frame": 690,
+      "polarization": "HH",
+      "offNadir": 42.3,
+      "direction": "left",
+      "previewUrl": "https://daichi-bousai.dpif.jaxa.jp/static/browse_image/7632fb15-7a52-467f-809f-b5c3029e4d2f/88153d0a-5a68-4d7e-8f3b-c09d35368100.png",
+      "sourceUrl": "https://daichi-bousai.dpif.jaxa.jp/externalif/disaster/2026-00024-JPN/",
+      "usage": "visual_reference",
+      "warning": "速報図は目視確認用です。正確な地理参照範囲を持たないため、道路閉塞や避難経路を自動確定する入力には使用しません。"
+    }
+  ]
+}
