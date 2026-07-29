@@ -1,0 +1,119 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "HZ-001",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.0002,
+              35.0001
+            ],
+            [
+              135.0026,
+              35.0001
+            ],
+            [
+              135.0026,
+              35.0015
+            ],
+            [
+              135.0002,
+              35.0015
+            ],
+            [
+              135.0002,
+              35.0001
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "HZ-001",
+        "name": "強い地表変化疑い",
+        "hazard_type": "change",
+        "confidence": 0.82,
+        "updated_at": "2026-07-29T00:00:00+09:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "HZ-002",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              134.9968,
+              34.9988
+            ],
+            [
+              134.9976,
+              34.9988
+            ],
+            [
+              134.9976,
+              35.0022
+            ],
+            [
+              134.9968,
+              35.0022
+            ],
+            [
+              134.9968,
+              34.9988
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "HZ-002",
+        "name": "浸水想定域",
+        "hazard_type": "flood",
+        "confidence": 0.67,
+        "updated_at": "2026-07-29T00:00:00+09:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "HZ-003",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.003,
+              35.0
+            ],
+            [
+              135.0047,
+              35.0
+            ],
+            [
+              135.0047,
+              35.0018
+            ],
+            [
+              135.003,
+              35.0018
+            ],
+            [
+              135.003,
+              35.0
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "HZ-003",
+        "name": "要現地確認区域",
+        "hazard_type": "change",
+        "confidence": 0.58,
+        "updated_at": "2026-07-29T00:00:00+09:00"
+      }
+    }
+  ]
+}

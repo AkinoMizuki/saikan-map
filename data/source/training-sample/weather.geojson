@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "WX-001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.9995,
+          35.0036
+        ]
+      },
+      "properties": {
+        "id": "WX-001",
+        "name": "保存済み雨量観測",
+        "summary": "1時間雨量 28mm（訓練値）",
+        "observed_at": "2026-07-29T00:00:00+09:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "WX-002",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          135.0043,
+          34.9972
+        ]
+      },
+      "properties": {
+        "id": "WX-002",
+        "name": "保存済み風観測",
+        "summary": "北西 8m/s（訓練値）",
+        "observed_at": "2026-07-29T00:00:00+09:00"
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="災害オフライン3Dマップ">
+  <rect width="512" height="512" rx="96" fill="#17324d"/>
+  <path d="M78 142l117-55 122 54 117-55v284l-117 55-122-54-117 55z" fill="#e7f0f6" stroke="#8ab6d3" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M195 87v284M317 141v284" stroke="#4b7f9f" stroke-width="14"/>
+  <path d="M115 301l72-81 66 48 63-93 83 70" fill="none" stroke="#d64c45" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="316" cy="175" r="25" fill="#efb64d" stroke="#17324d" stroke-width="10"/>
+  <path d="M256 443v-85" stroke="#17324d" stroke-width="28" stroke-linecap="round"/>
+  <path d="M219 397h74" stroke="#17324d" stroke-width="28" stroke-linecap="round"/>
+</svg>

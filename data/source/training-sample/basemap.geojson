@@ -1,0 +1,167 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "water-1",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              134.9962,
+              34.997
+            ],
+            [
+              134.9971,
+              34.997
+            ],
+            [
+              134.9971,
+              35.0042
+            ],
+            [
+              134.9962,
+              35.0042
+            ],
+            [
+              134.9962,
+              34.997
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "kind": "water",
+        "name": "訓練河川"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "park-1",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.0021,
+              35.0012
+            ],
+            [
+              135.004,
+              35.0012
+            ],
+            [
+              135.004,
+              35.0032
+            ],
+            [
+              135.0021,
+              35.0032
+            ],
+            [
+              135.0021,
+              35.0012
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "kind": "park",
+        "name": "訓練公園"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road-main",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            134.9955,
+            35.0
+          ],
+          [
+            135.005,
+            35.0
+          ]
+        ]
+      },
+      "properties": {
+        "kind": "road",
+        "name": "road-main",
+        "width": 5,
+        "status": "open"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road-north",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            135.0,
+            34.9955
+          ],
+          [
+            135.0,
+            35.005
+          ]
+        ]
+      },
+      "properties": {
+        "kind": "road",
+        "name": "road-north",
+        "width": 4,
+        "status": "open"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road-east",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            135.003,
+            34.996
+          ],
+          [
+            135.003,
+            35.0045
+          ]
+        ]
+      },
+      "properties": {
+        "kind": "road",
+        "name": "road-east",
+        "width": 3,
+        "status": "open"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "road-diag",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            134.9965,
+            34.997
+          ],
+          [
+            135.0045,
+            35.0038
+          ]
+        ]
+      },
+      "properties": {
+        "kind": "road",
+        "name": "road-diag",
+        "width": 2.5,
+        "status": "open"
+      }
+    }
+  ]
+}

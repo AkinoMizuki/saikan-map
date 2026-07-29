@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "packs": [
+    {
+      "id": "training-sample-v1",
+      "name": "架空訓練地域サンプル",
+      "description": "オフライン導入・3D表示・現地記録・削除機能を確認するための架空データです。",
+      "url": "./data/packs/training-sample.dmap",
+      "fallbackUrl": "./data/packs/training-sample.dmap.json"
+    }
+  ]
+}

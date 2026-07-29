@@ -1,0 +1,56 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "SH-001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.9987,
+          34.9987
+        ]
+      },
+      "properties": {
+        "id": "SH-001",
+        "name": "訓練学校避難所",
+        "capacity": 350,
+        "status": "open"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SH-002",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          135.00365,
+          35.00235
+        ]
+      },
+      "properties": {
+        "id": "SH-002",
+        "name": "訓練消防活動拠点",
+        "capacity": 80,
+        "status": "open"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "SH-003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          135.00295,
+          35.00335
+        ]
+      },
+      "properties": {
+        "id": "SH-003",
+        "name": "訓練公園一時避難場所",
+        "capacity": 500,
+        "status": "open"
+      }
+    }
+  ]
+}

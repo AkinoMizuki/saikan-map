@@ -1,0 +1,97 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "RT-001",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            134.9957,
+            35.0
+          ],
+          [
+            134.9995,
+            35.0
+          ],
+          [
+            135.0015,
+            35.0
+          ]
+        ]
+      },
+      "properties": {
+        "id": "RT-001",
+        "name": "西側進入路",
+        "status": "open"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "RT-002",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            135.0015,
+            35.0
+          ],
+          [
+            135.0048,
+            35.0
+          ]
+        ]
+      },
+      "properties": {
+        "id": "RT-002",
+        "name": "東側進入路",
+        "status": "blocked"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "RT-003",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            135.0,
+            34.9957
+          ],
+          [
+            135.0,
+            34.9996
+          ]
+        ]
+      },
+      "properties": {
+        "id": "RT-003",
+        "name": "南側進入路",
+        "status": "restricted"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "RT-004",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            135.003,
+            35.0
+          ],
+          [
+            135.003,
+            35.0043
+          ]
+        ]
+      },
+      "properties": {
+        "id": "RT-004",
+        "name": "北東側進入路",
+        "status": "open"
+      }
+    }
+  ]
+}

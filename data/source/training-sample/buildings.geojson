@@ -1,0 +1,509 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "B-001",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              134.998,
+              35.0005
+            ],
+            [
+              134.9987,
+              35.0005
+            ],
+            [
+              134.9987,
+              35.0012
+            ],
+            [
+              134.998,
+              35.0012
+            ],
+            [
+              134.998,
+              35.0005
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-001",
+        "name": "訓練庁舎",
+        "kind": "building",
+        "height": 18,
+        "levels": 6,
+        "damage_score": 0.1,
+        "confirmed_status": "unknown",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-002",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              134.9989,
+              35.001
+            ],
+            [
+              134.9997,
+              35.001
+            ],
+            [
+              134.9997,
+              35.0018
+            ],
+            [
+              134.9989,
+              35.0018
+            ],
+            [
+              134.9989,
+              35.001
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-002",
+        "name": "訓練病院",
+        "kind": "building",
+        "height": 24,
+        "levels": 8,
+        "damage_score": 0.28,
+        "confirmed_status": "unknown",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-003",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.0005,
+              35.0005
+            ],
+            [
+              135.0013,
+              35.0005
+            ],
+            [
+              135.0013,
+              35.0011
+            ],
+            [
+              135.0005,
+              35.0011
+            ],
+            [
+              135.0005,
+              35.0005
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-003",
+        "name": "訓練倉庫A",
+        "kind": "building",
+        "height": 9,
+        "levels": 3,
+        "damage_score": 0.82,
+        "confirmed_status": "destroyed",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-004",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.0015,
+              35.0005
+            ],
+            [
+              135.0023,
+              35.0005
+            ],
+            [
+              135.0023,
+              35.0011
+            ],
+            [
+              135.0015,
+              35.0011
+            ],
+            [
+              135.0015,
+              35.0005
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-004",
+        "name": "訓練倉庫B",
+        "kind": "building",
+        "height": 9,
+        "levels": 3,
+        "damage_score": 0.58,
+        "confirmed_status": "unknown",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-005",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              134.9981,
+              34.9983
+            ],
+            [
+              134.9994,
+              34.9983
+            ],
+            [
+              134.9994,
+              34.9992
+            ],
+            [
+              134.9981,
+              34.9992
+            ],
+            [
+              134.9981,
+              34.9983
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-005",
+        "name": "訓練学校",
+        "kind": "building",
+        "height": 15,
+        "levels": 5,
+        "damage_score": 0.05,
+        "confirmed_status": "safe",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-006",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.0005,
+              34.998
+            ],
+            [
+              135.0017,
+              34.998
+            ],
+            [
+              135.0017,
+              34.999
+            ],
+            [
+              135.0005,
+              34.999
+            ],
+            [
+              135.0005,
+              34.998
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-006",
+        "name": "訓練体育館",
+        "kind": "building",
+        "height": 12,
+        "levels": 4,
+        "damage_score": 0.35,
+        "confirmed_status": "unknown",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-007",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.0021,
+              34.9982
+            ],
+            [
+              135.0028,
+              34.9982
+            ],
+            [
+              135.0028,
+              34.9993
+            ],
+            [
+              135.0021,
+              34.9993
+            ],
+            [
+              135.0021,
+              34.9982
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-007",
+        "name": "訓練集合住宅",
+        "kind": "building",
+        "height": 30,
+        "levels": 10,
+        "damage_score": 0.48,
+        "confirmed_status": "unknown",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-008",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.0033,
+              35.0005
+            ],
+            [
+              135.0044,
+              35.0005
+            ],
+            [
+              135.0044,
+              35.0015
+            ],
+            [
+              135.0033,
+              35.0015
+            ],
+            [
+              135.0033,
+              35.0005
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-008",
+        "name": "訓練商業施設",
+        "kind": "building",
+        "height": 20,
+        "levels": 7,
+        "damage_score": 0.72,
+        "confirmed_status": "unknown",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-009",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.0033,
+              35.002
+            ],
+            [
+              135.004,
+              35.002
+            ],
+            [
+              135.004,
+              35.0027
+            ],
+            [
+              135.0033,
+              35.0027
+            ],
+            [
+              135.0033,
+              35.002
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-009",
+        "name": "訓練消防署",
+        "kind": "building",
+        "height": 12,
+        "levels": 4,
+        "damage_score": 0.02,
+        "confirmed_status": "safe",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-010",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              134.9975,
+              35.0021
+            ],
+            [
+              134.9982,
+              35.0021
+            ],
+            [
+              134.9982,
+              35.0028
+            ],
+            [
+              134.9975,
+              35.0028
+            ],
+            [
+              134.9975,
+              35.0021
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-010",
+        "name": "訓練住宅",
+        "kind": "building",
+        "height": 8,
+        "levels": 3,
+        "damage_score": 0.22,
+        "confirmed_status": "unknown",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-011",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              134.9986,
+              35.0024
+            ],
+            [
+              134.9992,
+              35.0024
+            ],
+            [
+              134.9992,
+              35.003
+            ],
+            [
+              134.9986,
+              35.003
+            ],
+            [
+              134.9986,
+              35.0024
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-011",
+        "name": "訓練住宅2",
+        "kind": "building",
+        "height": 8,
+        "levels": 3,
+        "damage_score": 0.12,
+        "confirmed_status": "unknown",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-012",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              135.0005,
+              35.002
+            ],
+            [
+              135.0018,
+              35.002
+            ],
+            [
+              135.0018,
+              35.003
+            ],
+            [
+              135.0005,
+              35.003
+            ],
+            [
+              135.0005,
+              35.002
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "B-012",
+        "name": "訓練工場",
+        "kind": "building",
+        "height": 14,
+        "levels": 5,
+        "damage_score": 0.65,
+        "confirmed_status": "unknown",
+        "updated_at": "2026-07-29T00:00:00+09:00",
+        "address": "架空訓練地域"
+      }
+    }
+  ]
+}

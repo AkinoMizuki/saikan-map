@@ -1,0 +1,61 @@
+{
+  "format": "disaster-map-pack",
+  "formatVersion": 1,
+  "id": "training-sample-v1",
+  "name": "架空訓練地域サンプル",
+  "description": "UI・オフライン・削除機能の確認専用。すべての地形・建物・被害情報は架空です。",
+  "createdAt": "2026-07-29T00:00:00+09:00",
+  "dataUpdatedAt": "2026-07-29T00:00:00+09:00",
+  "center": [
+    135.0002,
+    35.0003
+  ],
+  "zoom": 15.2,
+  "bounds": [
+    134.9954,
+    34.9954,
+    135.0051,
+    35.0051
+  ],
+  "disclaimer": "架空の訓練用データです。実在する地域・建物・被害を示しません。",
+  "attributions": [
+    {
+      "text": "訓練用架空データ：本プロジェクト生成"
+    },
+    {
+      "text": "アプリ内で加工・可視化した解析例を含みます"
+    }
+  ],
+  "files": [
+    {
+      "path": "basemap.geojson",
+      "role": "basemap",
+      "mediaType": "application/geo+json"
+    },
+    {
+      "path": "buildings.geojson",
+      "role": "buildings",
+      "mediaType": "application/geo+json"
+    },
+    {
+      "path": "hazards.geojson",
+      "role": "hazards",
+      "mediaType": "application/geo+json"
+    },
+    {
+      "path": "routes.geojson",
+      "role": "routes",
+      "mediaType": "application/geo+json"
+    },
+    {
+      "path": "shelters.geojson",
+      "role": "shelters",
+      "mediaType": "application/geo+json"
+    },
+    {
+      "path": "weather.geojson",
+      "role": "weather",
+      "mediaType": "application/geo+json"
+    }
+  ]
+}

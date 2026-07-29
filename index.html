@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17324d">
+  <meta name="description" content="事前取得した地域データを通信断時にも使用できる、無料・静的ホスティング対応の災害オフライン3Dマップ。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https:; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <title>災害オフライン3Dマップ</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <noscript>
+    <div class="fatal-message">このアプリにはJavaScriptが必要です。</div>
+  </noscript>
+
+  <header class="topbar">
+    <div class="brand">
+      <img src="./assets/icon.svg" alt="" width="36" height="36">
+      <div>
+        <h1>災害オフライン3Dマップ</h1>
+        <p>地域パックを事前保存し、通信断時にも地図・建物・調査記録を利用</p>
+      </div>
+    </div>
+    <div class="status-row" aria-live="polite">
+      <span id="networkBadge" class="badge">通信状態確認中</span>
+      <span id="packBadge" class="badge badge-muted">地域パック未選択</span>
+      <span id="versionBadge" class="badge badge-muted">ver 0.1.0</span>
+      <button id="sidebarToggle" class="icon-button" type="button" aria-controls="sidebar" aria-expanded="true" title="操作パネルを開閉">☰</button>
+    </div>
+  </header>
+
+  <div id="staleBanner" class="stale-banner" hidden>
+    <strong>オフライン動作中</strong>
+    <span id="staleText">表示中の情報は最後に保存された時点のものです。</span>
+  </div>
+
+  <div class="workspace">
+    <aside id="sidebar" class="sidebar" aria-label="操作パネル">
+      <section class="panel-section">
+        <h2>地域データ</h2>
+        <label for="packSelect">使用する地域パック</label>
+        <select id="packSelect">
+          <option value="">未選択</option>
+        </select>
+        <div class="button-grid two-columns">
+          <button id="installSampleButton" type="button">訓練パックを導入</button>
+          <button id="importPackButton" type="button">端末から読込</button>
+        </div>
+        <input id="packFileInput" type="file" accept=".dmap,.json,application/gzip,application/json" hidden>
+
+        <label for="packUrlInput">地域パックURL</label>
+        <div class="inline-form">
+          <input id="packUrlInput" type="url" inputmode="url" placeholder="./data/packs/example.dmap">
+          <button id="installUrlButton" type="button">取得</button>
+        </div>
+        <p class="help">同一GitHub Pages内の相対URLを推奨します。外部URLは配信元のCORS許可が必要です。</p>
+
+        <div id="packDetails" class="info-box" aria-live="polite">
+          地域パックを選択してください。
+        </div>
+        <button id="deleteActivePackButton" class="danger-outline" type="button" disabled>選択中パックを削除</button>
+      </section>
+
+      <section class="panel-section">
+        <h2>表示レイヤー</h2>
+        <div class="check-grid">
+          <label><input type="checkbox" data-layer="basemap" checked> 基本道路・水域</label>
+          <label><input type="checkbox" data-layer="buildings" checked> 災害前建物</label>
+          <label><input type="checkbox" data-layer="hazards" checked> 変化・危険領域</label>
+          <label><input type="checkbox" data-layer="routes" checked> 進入・通行情報</label>
+          <label><input type="checkbox" data-layer="shelters" checked> 避難所・拠点</label>
+          <label><input type="checkbox" data-layer="weather" checked> 保存済み気象情報</label>
+          <label><input type="checkbox" data-layer="reports" checked> 現地調査記録</label>
+        </div>
+
+        <label for="compareSlider">災害前後の比較</label>
+        <input id="compareSlider" type="range" min="0" max="100" value="65">
+        <div class="range-labels"><span>災害前</span><strong id="compareValue">65%</strong><span>災害後</span></div>
+      </section>
+
+      <section class="panel-section">
+        <h2>建物・地点検索</h2>
+        <div class="inline-form">
+          <input id="searchInput" type="search" placeholder="建物ID・名称">
+          <button id="searchButton" type="button">検索</button>
+        </div>
+        <div id="searchResults" class="search-results" aria-live="polite"></div>
+      </section>
+
+      <section class="panel-section">
+        <h2>現地調査記録</h2>
+        <label for="reportCategory">種別</label>
+        <select id="reportCategory">
+          <option value="unconfirmed">未確認</option>
+          <option value="damage">建物被害</option>
+          <option value="blocked">道路閉塞</option>
+          <option value="rescue">要救助・救助活動</option>
+          <option value="safe">安全確認</option>
+          <option value="medical">医療・救護</option>
+          <option value="other">その他</option>
+        </select>
+        <label for="reportStatus">状態</label>
+        <select id="reportStatus">
+          <option value="open">対応中</option>
+          <option value="confirmed">確認済み</option>
+          <option value="resolved">完了</option>
+        </select>
+        <label for="reportNote">メモ</label>
+        <textarea id="reportNote" rows="3" maxlength="1000" placeholder="観測内容、通行可否、要確認事項など"></textarea>
+        <label class="check-line"><input id="useCurrentLocation" type="checkbox"> 取得済みの現在地を使用</label>
+        <p class="help">未チェック時は地図中央に記録します。記録は端末内にのみ保存されます。</p>
+        <button id="addReportButton" type="button">調査記録を追加</button>
+        <div class="button-grid two-columns">
+          <button id="exportReportsButton" type="button">GeoJSON書出し</button>
+          <button id="importReportsButton" type="button">GeoJSON読込</button>
+        </div>
+        <input id="reportFileInput" type="file" accept=".geojson,.json,application/geo+json,application/json" hidden>
+        <div id="reportList" class="report-list"></div>
+      </section>
+
+      <section class="panel-section">
+        <h2>オフライン準備</h2>
+        <div id="storageSummary" class="storage-summary">ストレージ使用量を確認中…</div>
+        <div class="button-grid two-columns">
+          <button id="requestPersistButton" type="button">永続保存を要求</button>
+          <button id="prepareOfflineButton" type="button">完全オフライン検証</button>
+        </div>
+        <div id="offlineCheckResults" class="check-results" aria-live="polite"></div>
+      </section>
+
+      <section class="panel-section danger-zone">
+        <h2>キャッシュ・データ削除</h2>
+        <p class="help">誤操作防止のため確認画面が表示されます。調査記録は地域パックとは別に管理されます。</p>
+        <button id="clearCacheButton" class="danger-outline" type="button">アプリキャッシュを消去</button>
+        <button id="deleteReportsButton" class="danger-outline" type="button">全調査記録を削除</button>
+        <button id="deleteAllPacksButton" class="danger-outline" type="button">全地域パックを削除</button>
+        <button id="fullResetButton" class="danger-solid" type="button">アプリを完全初期化</button>
+      </section>
+    </aside>
+
+    <main class="map-area" aria-label="災害地図">
+      <canvas id="mapCanvas" tabindex="0" aria-label="地域パックの地図。ドラッグで移動、ホイールで拡大縮小できます。"></canvas>
+      <div id="emptyMapMessage" class="empty-map-message">
+        <strong>地域パックが未導入です</strong>
+        <span>左側の「訓練パックを導入」または「端末から読込」を選択してください。</span>
+      </div>
+      <div class="map-controls" aria-label="地図操作">
+        <button id="zoomInButton" type="button" title="拡大">＋</button>
+        <button id="zoomOutButton" type="button" title="縮小">－</button>
+        <button id="toggle3dButton" type="button" title="2D・3D切替">3D</button>
+        <button id="locateButton" type="button" title="現在地を取得">◎</button>
+        <button id="homeViewButton" type="button" title="地域全体を表示">⌂</button>
+      </div>
+      <div class="map-scale" id="mapScale">縮尺計算中</div>
+      <div id="mapPopup" class="map-popup" hidden></div>
+    </main>
+  </div>
+
+  <footer id="attributionFooter" class="attribution-footer">
+    <strong>クレジット：</strong>
+    <span id="attributionText">本アプリ：災害オフライン3Dマップ。地域データ未選択。</span>
+    <span class="footer-warning">解析結果は被害を確定するものではありません。現地確認・公的情報と併用してください。</span>
+  </footer>
+
+  <dialog id="progressDialog" class="progress-dialog">
+    <h2 id="progressTitle">処理中</h2>
+    <p id="progressMessage">しばらくお待ちください。</p>
+    <progress id="progressBar" max="100" value="0"></progress>
+  </dialog>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

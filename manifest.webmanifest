@@ -1,0 +1,26 @@
+{
+  "name": "災害オフライン3Dマップ",
+  "short_name": "災害3Dマップ",
+  "description": "地域パックを事前保存し、通信断時にも地図・建物・調査記録を利用できる無料PWA。",
+  "lang": "ja-JP",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f1720",
+  "theme_color": "#17324d",
+  "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
