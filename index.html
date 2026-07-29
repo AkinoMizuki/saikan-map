@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#17324d">
   <meta name="description" content="全国の地域パック、OpenStreetMap、ALOS-2レイヤーを扱うオフライン優先の3D災害状況マップ。">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https:; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>災観 SAIKAN｜オフライン3D災害状況マップ</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/icon-192.png">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./enhancements.css">
-  <script defer src="./app-v2.js"></script>
+  <script defer src="./app-loader.js?v=0.2.1"></script>
 </head>
 <body>
   <noscript><div class="fatal-message">このアプリにはJavaScriptが必要です。</div></noscript>
@@ -28,7 +28,7 @@
     <div class="status-row" aria-live="polite">
       <span id="networkBadge" class="badge">通信状態確認中</span>
       <span id="packBadge" class="badge badge-muted">地域パック未選択</span>
-      <span id="versionBadge" class="badge badge-muted">ver 0.2.0</span>
+      <span id="versionBadge" class="badge badge-muted">ver 0.2.1</span>
       <button id="sidebarToggle" class="icon-button" type="button" aria-controls="sidebar" aria-expanded="true" title="操作パネルを開閉">☰</button>
     </div>
   </header>
@@ -43,7 +43,7 @@
       <section class="panel-section">
         <h2>地域データ</h2>
         <label for="catalogSelect">ダウンロード可能な地域パック</label>
-        <select id="catalogSelect"><option value="">地域カタログを読み込み中…</option></select>
+        <select id="catalogSelect"><option value="">アプリを初期化中…</option></select>
         <div class="button-grid two-columns">
           <button id="installSampleButton" type="button">選択地域をダウンロード</button>
           <button id="importPackButton" type="button">端末から読込</button>
@@ -60,23 +60,22 @@
           <button id="installUrlButton" type="button">取得</button>
         </div>
         <p class="help">同一GitHub Pages内の相対URLを推奨します。外部URLはCORS許可が必要です。</p>
-
-        <div id="packDetails" class="info-box" aria-live="polite">地域パックを選択してください。</div>
+        <div id="packDetails" class="info-box" aria-live="polite">アプリを初期化しています。</div>
         <button id="deleteActivePackButton" class="danger-outline" type="button" disabled>選択中パックを削除</button>
       </section>
 
       <section class="panel-section">
         <h2>ALOS-2衛星レイヤー</h2>
         <label for="alos2ProductSelect">公開・変換済みプロダクト</label>
-        <select id="alos2ProductSelect"><option value="">カタログを読み込み中…</option></select>
+        <select id="alos2ProductSelect"><option value="">アプリを初期化中…</option></select>
         <div class="button-grid two-columns">
-          <button id="installAlos2Button" type="button">ALOS-2データを取得</button>
+          <button id="installAlos2Button" type="button">公開状況を確認</button>
           <button id="clearAlos2Button" class="danger-outline" type="button">保存済みを削除</button>
         </div>
         <label for="alos2Opacity">衛星レイヤー透明度</label>
         <input id="alos2Opacity" type="range" min="0" max="100" value="65">
-        <div id="alos2Info" class="info-box">ALOS-2カタログを確認中です。</div>
-        <p class="help">JAXAのGeoTIFF原データは外部PCでWeb表示用に軽量変換してから登録します。未公開地域では公式公開状況を確認します。</p>
+        <div id="alos2Info" class="info-box">アプリを初期化しています。</div>
+        <p class="help">取得可能な表示用レイヤーがない場合は、ボタン名が「ALOS-2公開状況を確認」に変わり、JAXA公式ページを開きます。</p>
       </section>
 
       <section class="panel-section">
@@ -91,8 +90,7 @@
           <label><input type="checkbox" data-layer="weather" checked> 保存済み気象情報</label>
           <label><input type="checkbox" data-layer="reports" checked> 現地調査記録</label>
         </div>
-        <p class="help online-only-note">OSM標準タイルはオンライン背景専用です。大量事前取得は行わず、オフライン地図は地域パックへ格納します。</p>
-
+        <p class="help online-only-note">OSM標準タイルはオンライン背景専用です。オフライン地図は地域パックへ格納します。</p>
         <label for="compareSlider">災害前後の比較</label>
         <input id="compareSlider" type="range" min="0" max="100" value="65">
         <div class="range-labels"><span>災害前</span><strong id="compareValue">65%</strong><span>災害後</span></div>
@@ -111,20 +109,12 @@
         <h2>現地調査記録</h2>
         <label for="reportCategory">種別</label>
         <select id="reportCategory">
-          <option value="unconfirmed">未確認</option>
-          <option value="damage">建物被害</option>
-          <option value="blocked">道路閉塞</option>
-          <option value="rescue">要救助・救助活動</option>
-          <option value="safe">安全確認</option>
-          <option value="medical">医療・救護</option>
-          <option value="other">その他</option>
+          <option value="unconfirmed">未確認</option><option value="damage">建物被害</option>
+          <option value="blocked">道路閉塞</option><option value="rescue">要救助・救助活動</option>
+          <option value="safe">安全確認</option><option value="medical">医療・救護</option><option value="other">その他</option>
         </select>
         <label for="reportStatus">状態</label>
-        <select id="reportStatus">
-          <option value="open">対応中</option>
-          <option value="confirmed">確認済み</option>
-          <option value="resolved">完了</option>
-        </select>
+        <select id="reportStatus"><option value="open">対応中</option><option value="confirmed">確認済み</option><option value="resolved">完了</option></select>
         <label for="reportNote">メモ</label>
         <textarea id="reportNote" rows="3" maxlength="1000" placeholder="観測内容、通行可否、要確認事項など"></textarea>
         <label class="check-line"><input id="useCurrentLocation" type="checkbox"> 取得済みの現在地を使用</label>
@@ -190,7 +180,6 @@
     <p id="progressMessage">処理しています。</p>
     <progress id="progressBar" max="100" value="0"></progress>
   </dialog>
-
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>
