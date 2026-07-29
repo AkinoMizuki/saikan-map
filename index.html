@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17324d">
   <meta name="description" content="事前取得した地域データを通信断時にも使用できる、無料・静的ホスティング対応の災害オフライン3Dマップ。">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https:; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
-  <title>災害オフライン3Dマップ</title>
+  <title>災観 SAIKAN｜オフライン3D災害状況マップ</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/icon-192.png">
@@ -22,7 +22,7 @@
     <div class="brand">
       <img src="./assets/icon.svg" alt="" width="36" height="36">
       <div>
-        <h1>災害オフライン3Dマップ</h1>
+        <h1>災観 SAIKAN</h1>
         <p>地域パックを事前保存し、通信断時にも地図・建物・調査記録を利用</p>
       </div>
     </div>
@@ -48,7 +48,7 @@
           <option value="">未選択</option>
         </select>
         <div class="button-grid two-columns">
-          <button id="installSampleButton" type="button">訓練パックを導入</button>
+          <button id="installSampleButton" type="button">熊本県嘉島町をダウンロード</button>
           <button id="importPackButton" type="button">端末から読込</button>
         </div>
         <input id="packFileInput" type="file" accept=".dmap,.json,application/gzip,application/json" hidden>
@@ -147,7 +147,7 @@
       <canvas id="mapCanvas" tabindex="0" aria-label="地域パックの地図。ドラッグで移動、ホイールで拡大縮小できます。"></canvas>
       <div id="emptyMapMessage" class="empty-map-message">
         <strong>地域パックが未導入です</strong>
-        <span>左側の「訓練パックを導入」または「端末から読込」を選択してください。</span>
+        <span>左側の「熊本県嘉島町をダウンロード」または「端末から読込」を選択してください。</span>
       </div>
       <div class="map-controls" aria-label="地図操作">
         <button id="zoomInButton" type="button" title="拡大">＋</button>
@@ -163,7 +163,7 @@
 
   <footer id="attributionFooter" class="attribution-footer">
     <strong>クレジット：</strong>
-    <span id="attributionText">本アプリ：災害オフライン3Dマップ。地域データ未選択。</span>
+    <span id="attributionText">本アプリ：災観 SAIKAN。地域データ未選択。</span>
     <span class="footer-warning">解析結果は被害を確定するものではありません。現地確認・公的情報と併用してください。</span>
   </footer>
 
