@@ -33,7 +33,9 @@ jobs:
               app-v3c/part-02.txt \
               app-v3c/part-03.txt \
               app-v3c/part-04.txt > app-v3.js
+          sed -i 's/best=id;/best=Number(id);/' app-v3.js
           node --check app-v3.js
+          grep -q "best=Number(id);" app-v3.js
           python3 -m json.tool data/catalog.json > /dev/null
           python3 -m json.tool data/updates/catalog.json > /dev/null
 
