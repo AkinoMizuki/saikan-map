@@ -2,6 +2,12 @@
   "formatVersion": 1,
   "packs": [
     {
+      "id": "kumamoto-kashima-base-v1",
+      "name": "熊本県嘉島町 基礎防災パック",
+      "description": "指定緊急避難場所13件を収録。災害後被害・ALOS解析・道路規制は未収録です。",
+      "url": "./data/packs/kumamoto-kashima-base-v1.dmap.json"
+    },
+    {
       "id": "training-sample-v1",
       "name": "架空訓練地域サンプル",
       "description": "オフライン導入・3D表示・現地記録・削除機能を確認するための架空データです。",
