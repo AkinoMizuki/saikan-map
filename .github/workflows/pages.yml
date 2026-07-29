@@ -35,7 +35,9 @@ jobs:
               app-v3c/part-04.txt > app-v3.js
 
           python3 tools/patch_v031.py
+          python3 tools/patch_v032.py
           python3 tools/patch_index_v031.py
+          python3 tools/patch_index_v032.py
 
           mkdir -p vendor
           curl --fail --location --retry 3 \
@@ -49,9 +51,12 @@ jobs:
           test -s vendor/qrcodejs-LICENSE.txt
           node --check app-v3.js
           node --check share-v31.js
-          grep -q "const APP_VERSION = '0.3.1'" app-v3.js
+          grep -q "const APP_VERSION = '0.3.2'" app-v3.js
+          grep -q "function applyAppMode" app-v3.js
+          grep -q "住民・避難支援者モード" app-v3.js
           grep -q "window.SAIKAN_SHARE_API" app-v3.js
           grep -q "QR分割オフライン共有" index.html
+          grep -q "app-v3.js?v=0.3.2" index.html
           grep -q "vendor/qrcode.min.js" index.html
           python3 -m json.tool data/catalog.json > /dev/null
           python3 -m json.tool data/updates/catalog.json > /dev/null
