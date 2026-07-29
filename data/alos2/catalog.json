@@ -1,0 +1,6 @@
+{
+  "formatVersion": 1,
+  "officialIndexUrl": "https://www.eorc.jaxa.jp/ALOS/jp/dataset/open_and_free/palsar2_l11_l22_j.htm",
+  "description": "SAIKANで直接表示できるWeb軽量化済みALOS-2/PALSAR-2レイヤーのカタログです。JAXAの原データ公開と、GeoTIFFからWeb画像への変換完了後にproductsへ登録します。",
+  "products": []
+}
