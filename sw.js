@@ -1,18 +1,20 @@
 'use strict';
 
-const APP_VERSION = '0.1.0';
+const APP_VERSION = '0.2.0';
 const CACHE_PREFIX = 'domap-shell-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const ASSET_PATHS = [
   './',
   './index.html',
-  './app.js',
+  './app-v2.js',
   './styles.css',
+  './enhancements.css',
   './manifest.webmanifest',
   './assets/icon.svg',
   './assets/icon-192.png',
   './assets/icon-512.png',
-  './data/catalog.json'
+  './data/catalog.json',
+  './data/alos2/catalog.json'
 ];
 
 function assetUrls() {
@@ -44,9 +46,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names
-      .filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
-      .map((name) => caches.delete(name)));
+    await Promise.all(names.filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME).map((name) => caches.delete(name)));
     await self.clients.claim();
   })());
 });
@@ -82,6 +82,7 @@ async function cacheFirst(request) {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith(self.registration.scope)) return;
   event.respondWith(cacheFirst(event.request));
 });
 
@@ -89,9 +90,7 @@ self.addEventListener('message', (event) => {
   const port = event.ports?.[0];
   if (!port) return;
   if (event.data?.type === 'PRECACHE_ALL') {
-    event.waitUntil(cacheAssets()
-      .then((results) => port.postMessage({ ok: true, results }))
-      .catch((error) => port.postMessage({ ok: false, error: error.message })));
+    event.waitUntil(cacheAssets().then((results) => port.postMessage({ ok: true, results })).catch((error) => port.postMessage({ ok: false, error: error.message })));
     return;
   }
   if (event.data?.type === 'CLEAR_APP_CACHES') {
