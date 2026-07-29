@@ -1,0 +1,113 @@
+(() => {
+  'use strict';
+
+  const APP_VERSION = '0.3.0';
+  const DB_NAME = 'disaster-offline-map-v1';
+  const DB_VERSION = 3;
+  const CACHE_PREFIX = 'domap-shell-';
+  const DEFAULT_VIEW = { center: [138, 36], zoom: 5.5, pitch: 0, bearing: 0 };
+  const JAXA_EVENT_URL = 'https://daichi-bousai.dpif.jaxa.jp/externalif/disaster/2026-00024-JPN/';
+  const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+  const $ = (id) => document.getElementById(id);
+
+  const dom = {
+    networkBadge: $('networkBadge'), dataBadge: $('dataBadge'), versionBadge: $('versionBadge'),
+    staleBanner: $('staleBanner'), staleText: $('staleText'), sidebar: $('sidebar'), sidebarToggle: $('sidebarToggle'),
+    workspace: document.querySelector('.workspace'), decisionSummary: $('decisionSummary'), freshnessSummary: $('freshnessSummary'),
+    catalogSelect: $('catalogSelect'), installRegionButton: $('installRegionButton'), importPackButton: $('importPackButton'),
+    packFileInput: $('packFileInput'), packSelect: $('packSelect'), downloadRoadsButton: $('downloadRoadsButton'),
+    deleteRoadsButton: $('deleteRoadsButton'), packDetails: $('packDetails'), updateCatalogSelect: $('updateCatalogSelect'),
+    downloadUpdateButton: $('downloadUpdateButton'), importUpdateButton: $('importUpdateButton'), updateFileInput: $('updateFileInput'),
+    openJaxaButton: $('openJaxaButton'), deleteUpdatesButton: $('deleteUpdatesButton'), updateInfo: $('updateInfo'),
+    alosStatus: $('alosStatus'), qzssStatus: $('qzssStatus'), jmaStatus: $('jmaStatus'), disasterType: $('disasterType'),
+    travelMode: $('travelMode'), locateButton: $('locateButton'), setStartButton: $('setStartButton'),
+    calculateEvacuationButton: $('calculateEvacuationButton'), setDestinationButton: $('setDestinationButton'),
+    calculateRescueRouteButton: $('calculateRescueRouteButton'), routeResults: $('routeResults'), obstacleType: $('obstacleType'),
+    obstacleSeverity: $('obstacleSeverity'), obstacleNote: $('obstacleNote'), finishDrawingButton: $('finishDrawingButton'),
+    cancelDrawingButton: $('cancelDrawingButton'), drawingStatus: $('drawingStatus'), exportSituationButton: $('exportSituationButton'),
+    importSituationButton: $('importSituationButton'), situationFileInput: $('situationFileInput'), observationList: $('observationList'),
+    osmBasemap: $('osmBasemap'), storageSummary: $('storageSummary'), requestPersistButton: $('requestPersistButton'),
+    prepareOfflineButton: $('prepareOfflineButton'), offlineCheckResults: $('offlineCheckResults'), clearCacheButton: $('clearCacheButton'),
+    deleteObservationsButton: $('deleteObservationsButton'), deleteAllPacksButton: $('deleteAllPacksButton'), fullResetButton: $('fullResetButton'),
+    mapDecisionBanner: $('mapDecisionBanner'), mapCanvas: $('mapCanvas'), emptyMapMessage: $('emptyMapMessage'), zoomInButton: $('zoomInButton'),
+    zoomOutButton: $('zoomOutButton'), toggle3dButton: $('toggle3dButton'), bearingResetButton: $('bearingResetButton'),
+    homeViewButton: $('homeViewButton'), bearingBadge: $('bearingBadge'), mapScale: $('mapScale'), mapPopup: $('mapPopup'),
+    attributionText: $('attributionText'), progressDialog: $('progressDialog'), progressTitle: $('progressTitle'),
+    progressMessage: $('progressMessage'), progressBar: $('progressBar'), toastRegion: $('toastRegion')
+  };
+
+  let db;
+  let regionCatalog = [];
+  let updateCatalog = { products: [], event: null };
+  let activePack = null;
+  let activeData = emptyDataset();
+  let roadRecord = null;
+  let roadGraph = null;
+  let observations = [];
+  let updates = [];
+  let startPoint = null;
+  let destinationPoint = null;
+  let selectedRoute = null;
+  let interactionMode = null;
+  let appMode = 'resident';
+
+  function fc(features = []) { return { type: 'FeatureCollection', features }; }
+  function emptyDataset() { return { basemap: fc(), buildings: fc(), hazards: fc(), routes: fc(), shelters: fc(), weather: fc() }; }
+  function formatDate(value) { if (!value) return '未取得'; const d = new Date(value); return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleString('ja-JP'); }
+  function formatBytes(value) { const n = Number(value || 0); if (!n) return '0 B'; const u = ['B','KB','MB','GB']; const i = Math.min(Math.floor(Math.log(n)/Math.log(1024)),3); return `${(n/1024**i).toFixed(i ? 1 : 0)} ${u[i]}`; }
+  function toast(message, type = 'info', timeout = 5000) { const e = document.createElement('div'); e.className = `toast ${type}`; e.textContent = message; dom.toastRegion.appendChild(e); setTimeout(() => e.remove(), timeout); }
+  function showProgress(title, message, value = null) { dom.progressTitle.textContent = title; dom.progressMessage.textContent = message; value === null ? dom.progressBar.removeAttribute('value') : dom.progressBar.value = value; if (!dom.progressDialog.open) dom.progressDialog.showModal(); }
+  function hideProgress() { if (dom.progressDialog.open) dom.progressDialog.close(); }
+  function handleError(error) { console.error(error); hideProgress(); toast(error?.message || String(error), 'error', 9000); }
+
+  function requestPromise(req) { return new Promise((resolve, reject) => { req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error || new Error('IndexedDB request failed')); }); }
+  function txDone(tx) { return new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error || new Error('IndexedDB transaction failed')); tx.onabort = () => reject(tx.error || new Error('IndexedDB transaction aborted')); }); }
+  async function openDatabase() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = () => {
+        const d = req.result;
+        if (!d.objectStoreNames.contains('packs')) d.createObjectStore('packs', { keyPath: 'id' });
+        if (!d.objectStoreNames.contains('files')) { const s = d.createObjectStore('files', { keyPath: 'key' }); s.createIndex('packId','packId'); }
+        if (!d.objectStoreNames.contains('settings')) d.createObjectStore('settings', { keyPath: 'key' });
+        if (!d.objectStoreNames.contains('roads')) d.createObjectStore('roads', { keyPath: 'packId' });
+        if (!d.objectStoreNames.contains('observations')) { const s = d.createObjectStore('observations', { keyPath: 'id' }); s.createIndex('packId','packId'); }
+        if (!d.objectStoreNames.contains('updates')) { const s = d.createObjectStore('updates', { keyPath: 'id' }); s.createIndex('packId','packId'); }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error || new Error('端末保存領域を開けません。'));
+      req.onblocked = () => reject(new Error('別タブを閉じて再試行してください。'));
+    });
+  }
+  function store(name, mode = 'readonly') { return db.transaction(name, mode).objectStore(name); }
+  async function dbGet(name, key) { return requestPromise(store(name).get(key)); }
+  async function dbGetAll(name) { return requestPromise(store(name).getAll()); }
+  async function dbGetByIndex(name, index, key) { return requestPromise(store(name).index(index).getAll(IDBKeyRange.only(key))); }
+  async function dbPut(name, value) { const tx = db.transaction(name, 'readwrite'); tx.objectStore(name).put(value); await txDone(tx); }
+  async function dbDelete(name, key) { const tx = db.transaction(name, 'readwrite'); tx.objectStore(name).delete(key); await txDone(tx); }
+  async function dbClear(names) { const tx = db.transaction(names, 'readwrite'); names.forEach(n => tx.objectStore(n).clear()); await txDone(tx); }
+  async function setting(key, fallback = null) { const r = await dbGet('settings', key); return r ? r.value : fallback; }
+  async function setSetting(key, value) { await dbPut('settings', { key, value }); }
+
+  async function sha256Hex(input) { const buf = input instanceof Blob ? await input.arrayBuffer() : input instanceof Uint8Array ? input.buffer.slice(input.byteOffset,input.byteOffset+input.byteLength) : input; const d = await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(d)].map(v => v.toString(16).padStart(2,'0')).join(''); }
+  function b64(value) { const x = atob(value); const out = new Uint8Array(x.length); for (let i=0;i<x.length;i++) out[i]=x.charCodeAt(i); return out; }
+  async function decodePack(buffer) { const b = new Uint8Array(buffer); if (b[0] !== 0x1f || b[1] !== 0x8b) return new TextDecoder().decode(b); if (!('DecompressionStream' in window)) throw new Error('このブラウザはGZIP展開に対応していません。'); return new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).text(); }
+  function validateFC(value, name) { if (!value || value.type !== 'FeatureCollection' || !Array.isArray(value.features)) throw new Error(`${name}はGeoJSON FeatureCollectionではありません。`); }
+  async function parsePack(buffer) {
+    const c = JSON.parse(await decodePack(buffer));
+    if (c.format !== 'disaster-map-pack-container' || !c.manifest?.id) throw new Error('地域パック形式が不正です。');
+    const files = [];
+    for (const def of c.manifest.files || []) {
+      const p = c.files?.[def.path]; if (!p) throw new Error(`欠落: ${def.path}`);
+      const bytes = p.encoding === 'base64' ? b64(p.data) : new TextEncoder().encode(p.data);
+      const hash = await sha256Hex(bytes); if (def.sha256 && hash !== def.sha256) throw new Error(`SHA-256不一致: ${def.path}`);
+      files.push({ key:`${c.manifest.id}::${def.path}`, packId:c.manifest.id, path:def.path, role:def.role, mediaType:def.mediaType, blob:new Blob([bytes],{type:def.mediaType}), sha256:hash });
+    }
+    return { manifest:c.manifest, files };
+  }
+  async function installPack(buffer, source) {
+    showProgress('地域パック導入', `${source}を検証しています…`);
+    try {
+      const p = await parsePack(buffer);
+      const tx = db.transaction(['packs','files'],'readwrite');
+      tx.objectStore('packs').put({ id:p.manifest.id, name:p.manifest.name, description:p.manifest.description, manifest:p.manifest, installedAt:new Date().toISOString(), totalBytes:p.files.reduce((s,f)=>s+f.blo
