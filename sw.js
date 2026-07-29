@@ -1,11 +1,12 @@
 'use strict';
 
-const APP_VERSION = '0.2.0';
+const APP_VERSION = '0.2.1';
 const CACHE_PREFIX = 'domap-shell-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const ASSET_PATHS = [
   './',
   './index.html',
+  './app-loader.js',
   './app-v2.js',
   './styles.css',
   './enhancements.css',
@@ -34,8 +35,6 @@ async function cacheAssets() {
       results.push({ url, ok: false, error: error.message });
     }
   }
-  const failed = results.filter((item) => !item.ok);
-  if (failed.length) throw new Error(`キャッシュ失敗: ${failed.map((item) => item.url).join(', ')}`);
   return results;
 }
 
@@ -46,32 +45,24 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names.filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME).map((name) => caches.delete(name)));
+    await Promise.all(names
+      .filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
+      .map((name) => caches.delete(name)));
     await self.clients.claim();
   })());
 });
 
-async function cacheFirst(request) {
-  const cached = await caches.match(request, { ignoreSearch: request.mode === 'navigate' });
-  if (cached) {
-    if (request.method === 'GET' && request.url.startsWith(self.registration.scope)) {
-      fetch(request).then(async (response) => {
-        if (response.ok) {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(request, response);
-        }
-      }).catch(() => {});
-    }
-    return cached;
-  }
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
   try {
-    const response = await fetch(request);
-    if (response.ok && request.method === 'GET' && request.url.startsWith(self.registration.scope)) {
-      const cache = await caches.open(CACHE_NAME);
+    const response = await fetch(request, { cache: 'no-store' });
+    if (response.ok && request.url.startsWith(self.registration.scope)) {
       await cache.put(request, response.clone());
     }
     return response;
   } catch (error) {
+    const cached = await caches.match(request, { ignoreSearch: request.mode === 'navigate' });
+    if (cached) return cached;
     if (request.mode === 'navigate') {
       const fallback = await caches.match(new URL('./index.html', self.registration.scope).href);
       if (fallback) return fallback;
@@ -80,17 +71,34 @@ async function cacheFirst(request) {
   }
 }
 
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response.ok && request.url.startsWith(self.registration.scope)) {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response.clone());
+  }
+  return response;
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith(self.registration.scope)) return;
-  event.respondWith(cacheFirst(event.request));
+
+  const url = new URL(event.request.url);
+  const isCatalog = url.pathname.endsWith('/data/catalog.json') || url.pathname.endsWith('/data/alos2/catalog.json');
+  const isNavigation = event.request.mode === 'navigate';
+  event.respondWith(isNavigation || isCatalog ? networkFirst(event.request) : cacheFirst(event.request));
 });
 
 self.addEventListener('message', (event) => {
   const port = event.ports?.[0];
   if (!port) return;
   if (event.data?.type === 'PRECACHE_ALL') {
-    event.waitUntil(cacheAssets().then((results) => port.postMessage({ ok: true, results })).catch((error) => port.postMessage({ ok: false, error: error.message })));
+    event.waitUntil(cacheAssets()
+      .then((results) => port.postMessage({ ok: true, results }))
+      .catch((error) => port.postMessage({ ok: false, error: error.message })));
     return;
   }
   if (event.data?.type === 'CLEAR_APP_CACHES') {
