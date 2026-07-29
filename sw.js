@@ -1,14 +1,18 @@
 'use strict';
 
-const APP_VERSION = '0.3.0';
+const APP_VERSION = '0.3.1';
 const CACHE_PREFIX = 'domap-shell-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const ASSET_PATHS = [
   './',
   './index.html',
   './app-v3.js',
+  './share-v31.js',
   './styles.css',
   './saikan-v3.css',
+  './share-v31.css',
+  './vendor/qrcode.min.js',
+  './vendor/qrcodejs-LICENSE.txt',
   './manifest.webmanifest',
   './assets/icon.svg',
   './assets/icon-192.png',
