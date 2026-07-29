@@ -1,21 +1,20 @@
 'use strict';
 
-const APP_VERSION = '0.2.1';
+const APP_VERSION = '0.3.0';
 const CACHE_PREFIX = 'domap-shell-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const ASSET_PATHS = [
   './',
   './index.html',
-  './app-loader.js',
-  './app-v2.js',
+  './app-v3.js',
   './styles.css',
-  './enhancements.css',
+  './saikan-v3.css',
   './manifest.webmanifest',
   './assets/icon.svg',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './data/catalog.json',
-  './data/alos2/catalog.json'
+  './data/updates/catalog.json'
 ];
 
 function assetUrls() {
@@ -87,7 +86,7 @@ self.addEventListener('fetch', (event) => {
   if (!event.request.url.startsWith(self.registration.scope)) return;
 
   const url = new URL(event.request.url);
-  const isCatalog = url.pathname.endsWith('/data/catalog.json') || url.pathname.endsWith('/data/alos2/catalog.json');
+  const isCatalog = url.pathname.endsWith('/data/catalog.json') || url.pathname.endsWith('/data/updates/catalog.json');
   const isNavigation = event.request.mode === 'navigate';
   event.respondWith(isNavigation || isCatalog ? networkFirst(event.request) : cacheFirst(event.request));
 });
