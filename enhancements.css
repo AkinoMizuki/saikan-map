@@ -1,0 +1,48 @@
+.bearing-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 9px;
+  border: 1px solid rgba(255, 255, 255, .72);
+  border-radius: 8px;
+  background: rgba(20, 42, 56, .82);
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.map-gesture-help {
+  position: absolute;
+  left: 12px;
+  bottom: 46px;
+  z-index: 4;
+  max-width: min(560px, calc(100% - 24px));
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: rgba(20, 42, 56, .8);
+  color: #fff;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+#catalogSelect,
+#alos2ProductSelect {
+  width: 100%;
+}
+
+.online-only-note {
+  border-left: 3px solid #3a7194;
+  padding-left: 8px;
+}
+
+@media (max-width: 720px) {
+  .map-gesture-help {
+    bottom: 82px;
+    font-size: 11px;
+  }
+
+  .bearing-badge {
+    min-height: 30px;
+    padding: 0 6px;
+  }
+}
